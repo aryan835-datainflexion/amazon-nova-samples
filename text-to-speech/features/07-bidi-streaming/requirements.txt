@@ -1,0 +1,2 @@
+# Polly SDK for Python v4 with the AWS CRT duplex HTTP/2 transport.
+aws-sdk-polly[awscrt]>=0.11.0,<0.12
