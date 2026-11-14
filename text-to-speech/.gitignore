@@ -1,0 +1,6 @@
+# Generated audio
+audio_output/
+*.mp3
+*.ogg
+*.pcm
+*.wav
