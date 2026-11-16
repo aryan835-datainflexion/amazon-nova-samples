@@ -1,0 +1,20 @@
+# Applies to the repo-root build context used by server/Dockerfile, which only
+# needs server/ and shared/. The client is static files in S3, not in the image.
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+client
+infra
+.git
+.kiro
+**/.ash
+.agents
+images
+*.glb
+*.gltf
+*.md
+.env
+.env.*
+**/*.log
+**/.DS_Store
+server/.sessions

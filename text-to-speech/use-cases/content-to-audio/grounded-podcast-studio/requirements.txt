@@ -1,0 +1,7 @@
+boto3
+fastapi
+uvicorn[standard]
+strands-agents
+strands-agents-tools
+mcp
+mcp-proxy-for-aws

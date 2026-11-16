@@ -1,0 +1,78 @@
+# Reachy voice assistant configuration. Every key is optional — anything missing
+# falls back to the defaults in src/voicebot/config.py. See README §6.
+#
+# Env overrides: AWS_REGION, BEDROCK_MODEL_ID, POLLY_VOICE, ROBOT_BACKEND,
+# LOG_LEVEL. An exported AWS_REGION silently wins over the value below.
+
+aws:
+  region: us-east-1
+
+# Amazon Transcribe streaming. English-only sample (no Amazon Translate).
+stt:
+  language: en-US            # any Transcribe streaming locale, but prompts assume English
+  sample_rate: 16000         # 8000 | 16000 (anything else is clamped to 16000)
+
+# Amazon Bedrock. Enable the model under Bedrock -> Model access first.
+llm:
+  provider: bedrock          # only "bedrock" is supported
+  model_id: us.anthropic.claude-sonnet-4-5-20250929-v1:0
+  temperature: 0.6           # 0.0-1.0, or null to omit (some models reject it)
+  latency: null              # null | standard | optimized — null is always safe;
+                             # "optimized" is rejected by some model/region pairs
+  system_prompt: null        # null -> the spoken-style prompt in prompts.py
+  max_tokens: 512
+  # Alternatives — swap model_id and match temperature:
+  #   us.amazon.nova-pro-v1:0        0.6    fast, all-AWS
+  #   us.amazon.nova-lite-v1:0       0.6    fastest / cheapest
+  #   us.anthropic.claude-opus-4-8   null   most capable
+  #   us.xai.grok-4.6                null   reasoning model — slow for live voice
+  #   openai.gpt-5.6-sol             null
+
+# Amazon Polly. Setting `style` overrides voice/engine/pitch/rate:
+#   child (Ivy, neural)          expressive (Ruth, generative — ADULT, most natural)
+#   adult_female (Joanna, neural)  adult_male (Matthew, neural)
+# Leaving style null uses the fields below, which are the youngest voice Polly
+# offers. Pitch only works on the standard engine, so youngest and most
+# expressive are a trade-off — there is no expressive child voice.
+tts:
+  style: null                # null | child | expressive | adult_female | adult_male
+  voice: Ivy
+  engine: standard           # standard | neural | generative
+  pitch: "+50%"              # higher = younger; null = no change
+  rate: "90%"                # null = default speed
+  volume: null               # null | x-soft | soft | medium | loud | x-loud
+  sample_rate: 16000         # 8000 | 16000 | 22050 | 24000
+
+robot:
+  backend: reachy            # reachy (simulator or USB robot) | fake (no hardware)
+  gestures: true             # play emotion-library moves as well as head poses
+  # Play each emotion move's own recorded clip (the robot's vocalizations)?
+  # Applies to on_error and on_sleep; on_start is always motion-only so its clip
+  # doesn't talk over Polly's spoken greeting.
+  emotion_sound: true
+  # Any move in pollen-robotics/reachy-mini-emotions-library. An unknown name is
+  # logged and skipped; null disables that cue.
+  emotions:
+    on_start: welcoming1
+    on_error: confused1
+    on_sleep: mini-deep-sleep
+
+# Microphone / speaker. The robot's array and speaker are one USB card ("Reachy
+# Mini Audio"), found by name at startup — replies always come out of the robot.
+audio:
+  # reachy -> the robot's built-in array. laptop -> the host's default input,
+  # which works around the array's weak speech pickup.
+  mic: laptop                # reachy | laptop
+  # Pin exact PyAudio indices; these win over `mic`. Set output_device_index to a
+  # headphone device to hear Polly in your ears instead of the robot. List them:
+  #   python -c "import pyaudio;p=pyaudio.PyAudio();[print(i,p.get_device_info_by_index(i)['name']) for i in range(p.get_device_count())]"
+  input_device_index: null
+  output_device_index: null
+
+vad:
+  # Silence (seconds) after speech before the user's turn ends. ~0.5 is snappier
+  # but clips pauses; ~1.5 is patient but laggy.
+  stop_secs: 0.8
+
+logging:
+  level: INFO                # DEBUG | INFO | WARNING | ERROR

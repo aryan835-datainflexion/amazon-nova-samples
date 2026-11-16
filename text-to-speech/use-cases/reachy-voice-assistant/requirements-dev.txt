@@ -1,0 +1,30 @@
+# Minimal dependencies to run the unit test suite.
+#
+# These tests exercise config parsing, the FakeReachy robot double, and the
+# ReachyDriver frame-mapping logic. They need NEITHER AWS credentials, NOR the
+# Reachy hardware/simulator, NOR audio hardware — so this file deliberately omits
+# the heavy runtime extras (aws, silero/torch, pyaudio, reachy-mini/mujoco).
+#
+#     python3.12 -m venv .venv
+#     source .venv/bin/activate
+#     pip install -r requirements-dev.txt
+#     PYTHONPATH=src pytest
+
+PyYAML>=6
+
+# Base pipecat provides FrameProcessor + the frame classes the driver test needs
+# (no AWS/Silero extras required just to import and unit-test the processor).
+pipecat-ai>=1.7,<2
+
+pytest>=8
+
+# --- walkthrough.ipynb (the guided runbook) ---
+# JupyterLab opens the notebook, boto3 runs the Bedrock/Polly demos, and
+# playsound3 uses the same local MP3 playback API as the Python examples.
+jupyterlab>=4
+boto3>=1.34
+playsound3==3.3.2
+
+# --- diagrams/ (regenerate architecture.png) ---
+# The architecture diagram renderer (diagrams/render_architecture.py) uses matplotlib.
+matplotlib>=3.8

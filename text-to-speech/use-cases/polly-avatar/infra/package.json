@@ -1,0 +1,27 @@
+{
+  "name": "polly-avatar-infra",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "infra": "bin/app.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all --require-approval never",
+    "destroy": "cdk destroy --all --force",
+    "diff": "cdk diff"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.700.0",
+    "aws-cdk-lib": "^2.277.0",
+    "cdk-nag": "3.0.2",
+    "constructs": "^10.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "aws-cdk": "^2.1148.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

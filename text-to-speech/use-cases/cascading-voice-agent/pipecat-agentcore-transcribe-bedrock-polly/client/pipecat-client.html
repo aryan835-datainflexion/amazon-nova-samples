@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pipecat AgentCore Voice Agent</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #111827;
+      background: #f8fafc;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .sub {
+      margin: 0 0 24px;
+      color: #4b5563;
+    }
+    .panel {
+      background: white;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    label {
+      display: block;
+      font-weight: 650;
+      margin-bottom: 8px;
+    }
+    input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #ed7100;
+      color: white;
+    }
+    button.secondary {
+      background: #475569;
+    }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #status {
+      font-weight: 700;
+      color: #991b1b;
+    }
+    #status.connected {
+      color: #047857;
+    }
+    #events {
+      min-height: 220px;
+      max-height: 420px;
+      overflow: auto;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pipecat AgentCore Voice Agent</h1>
+    <p class="sub">AgentCore WebSocket transport with Pipecat, Amazon Transcribe, Bedrock, and Polly.</p>
+
+    <section class="panel">
+      <label for="presignedUrl">AgentCore WebSocket URL</label>
+      <input id="presignedUrl" placeholder="wss://endpoint/runtimes/arn/ws?..." />
+      <div class="row" style="margin-top: 14px;">
+        <button id="connectBtn">Connect</button>
+        <button id="disconnectBtn" class="secondary" disabled>Disconnect</button>
+        <span id="status">Disconnected</span>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div id="events"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { PipecatClient } from "https://esm.sh/@pipecat-ai/client-js";
+    import {
+      ProtobufFrameSerializer,
+      WebSocketTransport,
+    } from "https://esm.sh/@pipecat-ai/websocket-transport";
+
+    const urlInput = document.getElementById("presignedUrl");
+    const events = document.getElementById("events");
+    const status = document.getElementById("status");
+    const connectBtn = document.getElementById("connectBtn");
+    const disconnectBtn = document.getElementById("disconnectBtn");
+    let client = null;
+
+    function log(message, data = null) {
+      const line = `[${new Date().toLocaleTimeString()}] ${message}`;
+      events.textContent += data ? `${line}\n${JSON.stringify(data, null, 2)}\n` : `${line}\n`;
+      events.scrollTop = events.scrollHeight;
+    }
+
+    function setConnected(connected) {
+      status.textContent = connected ? "Connected" : "Disconnected";
+      status.className = connected ? "connected" : "";
+      connectBtn.disabled = connected;
+      disconnectBtn.disabled = !connected;
+    }
+
+    async function connect() {
+      const wsUrl = urlInput.value.trim();
+      if (!wsUrl.startsWith("ws://") && !wsUrl.startsWith("wss://")) {
+        log("Enter a valid WebSocket URL.");
+        return;
+      }
+
+      const transport = new WebSocketTransport({
+        serializer: new ProtobufFrameSerializer(),
+      });
+      client = new PipecatClient({
+        transport,
+        enableMic: true,
+        enableCam: false,
+      });
+
+      client.on("connected", () => {
+        setConnected(true);
+        log("Connected. Grant microphone access and start speaking.");
+      });
+      client.on("disconnected", () => {
+        setConnected(false);
+        log("Disconnected.");
+      });
+      client.on("error", (error) => log("Client error", error));
+
+      log("Connecting to AgentCore WebSocket...");
+      await client.connect({ wsUrl });
+    }
+
+    async function disconnect() {
+      if (!client) return;
+      await client.disconnect();
+      client = null;
+      setConnected(false);
+    }
+
+    connectBtn.addEventListener("click", () => connect().catch((error) => log("Connect failed", String(error))));
+    disconnectBtn.addEventListener("click", () => disconnect().catch((error) => log("Disconnect failed", String(error))));
+
+    fetch("/api/connection")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.websocket_url) {
+          urlInput.value = data.websocket_url;
+          log("Loaded presigned WebSocket URL.");
+        }
+      })
+      .catch((error) => log("Could not load connection info", String(error)));
+  </script>
+</body>
+</html>

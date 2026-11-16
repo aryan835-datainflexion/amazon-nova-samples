@@ -1,0 +1,12 @@
+# Dependencies for deploying the cascading voice agent to Amazon Bedrock AgentCore.
+# Install with: pip install -r requirements.txt
+
+# AgentCore SDK + Starter Toolkit (provides the `agentcore` CLI and launch APIs)
+bedrock-agentcore>=0.1.0
+bedrock-agentcore-starter-toolkit>=0.1.0
+
+# AWS SDK
+boto3>=1.34.0
+
+# YAML support for the .bedrock_agentcore.yaml runtime configuration
+PyYAML>=6.0

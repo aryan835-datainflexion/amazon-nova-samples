@@ -1,0 +1,790 @@
+[
+  {
+    "code": "en-AU",
+    "name": "Australian English",
+    "voices": [
+      {
+        "id": "Olivia",
+        "name": "Olivia",
+        "gender": "Female",
+        "languageCode": "en-AU",
+        "languageName": "Australian English",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "pt-BR",
+    "name": "Brazilian Portuguese",
+    "voices": [
+      {
+        "id": "Camila",
+        "name": "Camila",
+        "gender": "Female",
+        "languageCode": "pt-BR",
+        "languageName": "Brazilian Portuguese",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Thiago",
+        "name": "Thiago",
+        "gender": "Male",
+        "languageCode": "pt-BR",
+        "languageName": "Brazilian Portuguese",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Vitoria",
+        "name": "Vitória",
+        "gender": "Female",
+        "languageCode": "pt-BR",
+        "languageName": "Brazilian Portuguese",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "en-GB",
+    "name": "British English",
+    "voices": [
+      {
+        "id": "Amy",
+        "name": "Amy",
+        "gender": "Female",
+        "languageCode": "en-GB",
+        "languageName": "British English",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Arthur",
+        "name": "Arthur",
+        "gender": "Male",
+        "languageCode": "en-GB",
+        "languageName": "British English",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Brian",
+        "name": "Brian",
+        "gender": "Male",
+        "languageCode": "en-GB",
+        "languageName": "British English",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Emma",
+        "name": "Emma",
+        "gender": "Female",
+        "languageCode": "en-GB",
+        "languageName": "British English",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "fr-CA",
+    "name": "Canadian French",
+    "voices": [
+      {
+        "id": "Gabrielle",
+        "name": "Gabrielle",
+        "gender": "Female",
+        "languageCode": "fr-CA",
+        "languageName": "Canadian French",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      },
+      {
+        "id": "Liam",
+        "name": "Liam",
+        "gender": "Male",
+        "languageCode": "fr-CA",
+        "languageName": "Canadian French",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "es-ES",
+    "name": "Castilian Spanish",
+    "voices": [
+      {
+        "id": "Lucia",
+        "name": "Lucia",
+        "gender": "Female",
+        "languageCode": "es-ES",
+        "languageName": "Castilian Spanish",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Sergio",
+        "name": "Sergio",
+        "gender": "Male",
+        "languageCode": "es-ES",
+        "languageName": "Castilian Spanish",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "ca-ES",
+    "name": "Catalan",
+    "voices": [
+      {
+        "id": "Arlet",
+        "name": "Arlet",
+        "gender": "Female",
+        "languageCode": "ca-ES",
+        "languageName": "Catalan",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "cs-CZ",
+    "name": "Czech",
+    "voices": [
+      {
+        "id": "Jitka",
+        "name": "Jitka",
+        "gender": "Female",
+        "languageCode": "cs-CZ",
+        "languageName": "Czech",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "da-DK",
+    "name": "Danish",
+    "voices": [
+      {
+        "id": "Sofie",
+        "name": "Sofie",
+        "gender": "Female",
+        "languageCode": "da-DK",
+        "languageName": "Danish",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "nl-NL",
+    "name": "Dutch",
+    "voices": [
+      {
+        "id": "Laura",
+        "name": "Laura",
+        "gender": "Female",
+        "languageCode": "nl-NL",
+        "languageName": "Dutch",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "fi-FI",
+    "name": "Finnish",
+    "voices": [
+      {
+        "id": "Suvi",
+        "name": "Suvi",
+        "gender": "Female",
+        "languageCode": "fi-FI",
+        "languageName": "Finnish",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "fr-FR",
+    "name": "French",
+    "voices": [
+      {
+        "id": "Lea",
+        "name": "Léa",
+        "gender": "Female",
+        "languageCode": "fr-FR",
+        "languageName": "French",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Remi",
+        "name": "Rémi",
+        "gender": "Male",
+        "languageCode": "fr-FR",
+        "languageName": "French",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "de-DE",
+    "name": "German",
+    "voices": [
+      {
+        "id": "Daniel",
+        "name": "Daniel",
+        "gender": "Male",
+        "languageCode": "de-DE",
+        "languageName": "German",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      },
+      {
+        "id": "Vicki",
+        "name": "Vicki",
+        "gender": "Female",
+        "languageCode": "de-DE",
+        "languageName": "German",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "ar-AE",
+    "name": "Gulf Arabic",
+    "voices": [
+      {
+        "id": "Hala",
+        "name": "Hala",
+        "gender": "Female",
+        "languageCode": "ar-AE",
+        "languageName": "Gulf Arabic",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Zayd",
+        "name": "Zayd",
+        "gender": "Male",
+        "languageCode": "ar-AE",
+        "languageName": "Gulf Arabic",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "hi-IN",
+    "name": "Hindi",
+    "voices": [
+      {
+        "id": "Kajal",
+        "name": "Kajal",
+        "gender": "Female",
+        "languageCode": "hi-IN",
+        "languageName": "Hindi",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "en-IN",
+    "name": "Indian English",
+    "voices": [
+      {
+        "id": "Kajal",
+        "name": "Kajal",
+        "gender": "Female",
+        "languageCode": "en-IN",
+        "languageName": "Indian English",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "en-IE",
+    "name": "Irish English",
+    "voices": [
+      {
+        "id": "Niamh",
+        "name": "Niamh",
+        "gender": "Female",
+        "languageCode": "en-IE",
+        "languageName": "Irish English",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "it-IT",
+    "name": "Italian",
+    "voices": [
+      {
+        "id": "Adriano",
+        "name": "Adriano",
+        "gender": "Male",
+        "languageCode": "it-IT",
+        "languageName": "Italian",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Bianca",
+        "name": "Bianca",
+        "gender": "Female",
+        "languageCode": "it-IT",
+        "languageName": "Italian",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "ja-JP",
+    "name": "Japanese",
+    "voices": [
+      {
+        "id": "Kazuha",
+        "name": "Kazuha",
+        "gender": "Female",
+        "languageCode": "ja-JP",
+        "languageName": "Japanese",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Takumi",
+        "name": "Takumi",
+        "gender": "Male",
+        "languageCode": "ja-JP",
+        "languageName": "Japanese",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Tomoko",
+        "name": "Tomoko",
+        "gender": "Female",
+        "languageCode": "ja-JP",
+        "languageName": "Japanese",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "ko-KR",
+    "name": "Korean",
+    "voices": [
+      {
+        "id": "Jihye",
+        "name": "Jihye",
+        "gender": "Female",
+        "languageCode": "ko-KR",
+        "languageName": "Korean",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Seoyeon",
+        "name": "Seoyeon",
+        "gender": "Female",
+        "languageCode": "ko-KR",
+        "languageName": "Korean",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "en-NZ",
+    "name": "New Zealand English",
+    "voices": [
+      {
+        "id": "Aria",
+        "name": "Aria",
+        "gender": "Female",
+        "languageCode": "en-NZ",
+        "languageName": "New Zealand English",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "nb-NO",
+    "name": "Norwegian",
+    "voices": [
+      {
+        "id": "Ida",
+        "name": "Ida",
+        "gender": "Female",
+        "languageCode": "nb-NO",
+        "languageName": "Norwegian",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "pl-PL",
+    "name": "Polish",
+    "voices": [
+      {
+        "id": "Ola",
+        "name": "Ola",
+        "gender": "Female",
+        "languageCode": "pl-PL",
+        "languageName": "Polish",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "pt-PT",
+    "name": "Portuguese",
+    "voices": [
+      {
+        "id": "Ines",
+        "name": "Inês",
+        "gender": "Female",
+        "languageCode": "pt-PT",
+        "languageName": "Portuguese",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "en-ZA",
+    "name": "South African English",
+    "voices": [
+      {
+        "id": "Ayanda",
+        "name": "Ayanda",
+        "gender": "Female",
+        "languageCode": "en-ZA",
+        "languageName": "South African English",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "sv-SE",
+    "name": "Swedish",
+    "voices": [
+      {
+        "id": "Elin",
+        "name": "Elin",
+        "gender": "Female",
+        "languageCode": "sv-SE",
+        "languageName": "Swedish",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "de-CH",
+    "name": "Swiss Standard German",
+    "voices": [
+      {
+        "id": "Sabrina",
+        "name": "Sabrina",
+        "gender": "Female",
+        "languageCode": "de-CH",
+        "languageName": "Swiss Standard German",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "tr-TR",
+    "name": "Turkish",
+    "voices": [
+      {
+        "id": "Burcu",
+        "name": "Burcu",
+        "gender": "Female",
+        "languageCode": "tr-TR",
+        "languageName": "Turkish",
+        "engines": [
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "en-US",
+    "name": "US English",
+    "voices": [
+      {
+        "id": "Danielle",
+        "name": "Danielle",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "generative",
+          "long-form",
+          "neural"
+        ]
+      },
+      {
+        "id": "Gregory",
+        "name": "Gregory",
+        "gender": "Male",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "long-form",
+          "neural"
+        ]
+      },
+      {
+        "id": "Ivy",
+        "name": "Ivy",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Joanna",
+        "name": "Joanna",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Joey",
+        "name": "Joey",
+        "gender": "Male",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Justin",
+        "name": "Justin",
+        "gender": "Male",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Kendra",
+        "name": "Kendra",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Kevin",
+        "name": "Kevin",
+        "gender": "Male",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "neural"
+        ]
+      },
+      {
+        "id": "Kimberly",
+        "name": "Kimberly",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Matthew",
+        "name": "Matthew",
+        "gender": "Male",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Ruth",
+        "name": "Ruth",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "generative",
+          "long-form",
+          "neural"
+        ]
+      },
+      {
+        "id": "Salli",
+        "name": "Salli",
+        "gender": "Female",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Stephen",
+        "name": "Stephen",
+        "gender": "Male",
+        "languageCode": "en-US",
+        "languageName": "US English",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  },
+  {
+    "code": "es-US",
+    "name": "US Spanish",
+    "voices": [
+      {
+        "id": "Lupe",
+        "name": "Lupe",
+        "gender": "Female",
+        "languageCode": "es-US",
+        "languageName": "US Spanish",
+        "engines": [
+          "generative",
+          "neural",
+          "standard"
+        ]
+      },
+      {
+        "id": "Pedro",
+        "name": "Pedro",
+        "gender": "Male",
+        "languageCode": "es-US",
+        "languageName": "US Spanish",
+        "engines": [
+          "generative",
+          "neural"
+        ]
+      }
+    ]
+  }
+]
