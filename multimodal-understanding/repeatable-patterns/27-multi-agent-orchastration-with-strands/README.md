@@ -19,3 +19,6 @@ This step-by-step approach will help you understand both the individual componen
 
 Note: you need Tavily API Key for fin_web_searcher_agent
 
+Contributors:
+Rui Cardoso
+Bhavya Sruthi Sode
