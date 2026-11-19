@@ -45,10 +45,11 @@ minimal surrounding setup.
 | [05-lexicons](features/05-lexicons/) | Creating, listing, applying, retrieving, and deleting lexicons | Ready |
 | [06-async-synthesis](features/06-async-synthesis/) | Long-form asynchronous synthesis to Amazon S3 | Ready |
 | [07-bidi-streaming](features/07-bidi-streaming/) | Bidirectional streaming with `StartSpeechSynthesisStream` | Experimental Python SDK |
+| [08-voice-cloning](features/08-voice-cloning/) | Creating, inspecting, using, and deleting a cloned voice | Ready |
 
-Examples 01–06 require Python 3.10 or later and share the dependencies in
-[`features/requirements.txt`](features/requirements.txt). Example 07 requires
-Python 3.12 or later and has separate setup instructions.
+Examples 01–06 and 08 require Python 3.10 or later and share the dependencies
+in [`features/requirements.txt`](features/requirements.txt). Example 07
+requires Python 3.12 or later and has separate setup instructions.
 
 ## Use cases
 

@@ -8,8 +8,8 @@ Availability can vary by AWS Region, voice, language, and engine. Check the requ
 
 ## Shared setup
 
-Examples 01–06 require Python 3.10 or later and share `boto3`. From the
-repository root:
+Examples 01–06 and 08 require Python 3.10 or later and share `boto3`. From
+the repository root:
 
 ```bash
 cd text-to-speech/features
@@ -39,6 +39,7 @@ environment. Follow the setup in its README.
 | [05-lexicons](05-lexicons/) | `PutLexicon`, `GetLexicon`, `ListLexicons`, `DeleteLexicon` | Ready |
 | [06-async-synthesis](06-async-synthesis/) | `StartSpeechSynthesisTask`, `GetSpeechSynthesisTask`, `ListSpeechSynthesisTasks` | Ready |
 | [07-bidi-streaming](07-bidi-streaming/) | `StartSpeechSynthesisStream` | Experimental Python SDK |
+| [08-voice-cloning](08-voice-cloning/) | `CreateVoice`, `GetVoice`, `DeleteVoice`, synthesis with a cloned voice | Ready |
 
 The bidirectional streaming API is generally available, but example 07 uses
 the separate experimental Polly SDK for Python v4.
