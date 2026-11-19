@@ -1,6 +1,6 @@
 ---
 name: amazon-polly
-description: Best practices for building with Amazon Polly text-to-speech — choosing the right API (SynthesizeSpeech, StartSpeechSynthesisTask, StartSpeechSynthesisStream), choosing an engine (standard, neural, long-form, generative) and a compatible voice, output formats, engine-safe SSML, pronunciation lexicons, speech marks for captions and lip-sync, limits, errors, retries, IAM, and cost. Use when writing, reviewing, or debugging code that calls Polly; when picking a voice or engine; when fixing pronunciation; or when errors such as InvalidSsmlException, TextLengthExceededException, EngineNotSupportedException, or LexiconNotFoundException appear. Not for Transcribe-, Translate-, or Bedrock-only questions.
+description: Best practices for building with Amazon Polly text-to-speech — choosing synthesis APIs, engines, and compatible voices; creating and managing cloned voices; output formats; engine-safe SSML; pronunciation lexicons; speech marks for captions and lip-sync; limits; errors; retries; IAM; and cost. Use when writing, reviewing, or debugging code that calls Polly; choosing or cloning a voice; fixing pronunciation; or handling Polly API errors. Not for Transcribe-, Translate-, or Bedrock-only questions.
 ---
 
 # Amazon Polly — best practices
@@ -23,6 +23,8 @@ the [Polly developer guide](https://docs.aws.amazon.com/polly/latest/dg/what-is.
 | Real-time agent that already splits text into sentences | `SynthesizeSpeech` per sentence | Simple, widely supported; latency ≈ one sentence |
 | Word/sentence timing, viseme lip-sync, `<mark>` events | `SynthesizeSpeech` with `OutputFormat=json` | Speech marks; a separate request from the audio |
 | Find voices and their supported engines | `DescribeVoices` | Region-specific roster; never hard-code the full list |
+| Create a voice from recordings of one consenting speaker | `CreateVoice` → `GetVoice` | Gated feature; asynchronous resource creation; explicit terms acceptance required |
+| Inspect or permanently remove a cloned voice | `GetVoice` / `DeleteVoice` | Voice IDs are account- and Region-scoped; deletion is irreversible |
 | Custom pronunciation reused across requests | `PutLexicon` + `LexiconNames` on synthesis | Stored PLS lexicons; up to 5 per request |
 
 Rules of thumb:
@@ -40,7 +42,7 @@ Rules of thumb:
 
 | Engine | Use for | Constraints |
 | --- | --- | --- |
-| `generative` | Most expressive, conversational speech; assistants, podcasts | Fewest voices and Regions; **no speech marks**; limited SSML; no prosody `pitch` |
+| `generative` | Most expressive, conversational speech; assistants, podcasts; **required for cloned voices** | Fewest voices and Regions; **no speech marks**; limited SSML; no prosody `pitch` |
 | `long-form` | Narration of long content (articles, e-learning) | Few voices and Regions; limited SSML |
 | `neural` | Natural speech with the broadest modern feature set; **required choice when you need speech marks/visemes with natural audio** | Limited SSML (no `emphasis`, no prosody `pitch`) |
 | `standard` | Widest voice/language/Region coverage; full SSML (pitch, emphasis, effects) | Least natural; lowest cost |
@@ -258,7 +260,51 @@ Never publish model output to a shared lexicon unreviewed.
   Polly client (Python 3.12+) does, and its interface may change. Check your
   SDK's current support before you commit to this design.
 
-## 8. Errors, retries, and quotas
+## 8. Voice cloning
+
+Voice cloning creates a persistent Polly generative voice from pre-recorded
+audio of one speaker. It is a gated feature, so confirm that the target AWS
+account and Region have access before designing around it.
+
+**Consent and authorization are release gates:**
+
+- Never set `TermsAccepted=True` on the user's behalf. Before `CreateVoice`,
+  require explicit confirmation that the speaker consented and the caller
+  accepts the applicable AWS terms and policies.
+- Keep a durable consent reference associated with the voice ID, owner,
+  account, Region, and language. Tags can record a non-sensitive reference;
+  don't put consent documents or personal data in tags.
+- Get confirmation immediately before creating the voice. If consent is
+  withdrawn, stop synthesis and confirm before permanently deleting the voice.
+
+**Creation workflow:**
+
+1. Use 1–10 clean, pre-recorded files from one speaker, no more than 15 minutes
+   total. Prefer consistent mono 16-bit WAV recorded at 24 kHz. The API accepts
+   direct audio bytes or S3 object references.
+2. For S3 recordings, keep the bucket in the target Region and grant the caller
+   `s3:GetObject`. Treat recordings as sensitive biometric data and restrict
+   access.
+3. Call `CreateVoice` once with the recording format, language, consented terms,
+   tags, and optional same-Region symmetric customer-managed KMS key. Store the
+   returned voice ID immediately.
+4. Poll `GetVoice` at a moderate interval until `active` or `failed`, with a
+   timeout. If creation times out or returns a server error, search
+   `DescribeVoices` for the requested name before retrying; an automatic retry
+   can create a duplicate voice.
+5. Use an active cloned voice with `VoiceId=<returned ID>` and
+   `Engine="generative"` in `SynthesizeSpeech` or
+   `StartSpeechSynthesisTask`. Keep its recording language unless a separately
+   approved voice is created and reviewed for another language.
+
+Cloned voices are account- and Region-scoped and have service quotas. Creation
+is free, but synthesis is billed at cloned-voice rates; async output also
+incurs S3 costs. `DeleteVoice` is irreversible, so resolve the exact voice ID
+with `GetVoice`, show its name/Region/account, and obtain confirmation before
+deletion. Do not retain source recordings or generated audio longer than the
+approved purpose requires.
+
+## 9. Errors, retries, and quotas
 
 | Error | Usual cause | Fix |
 | --- | --- | --- |
@@ -271,6 +317,8 @@ Never publish model output to a shared lexicon unreviewed.
 | `InvalidLexiconException` / `UnsupportedPlsLanguageException` | Malformed PLS or unsupported language | Validate the PLS; match `xml:lang` to the voice |
 | `MarksNotSupportedForFormatException` / `SsmlMarksNotSupportedForTextTypeException` | Speech marks with a non-`json` format, or `ssml` marks with plain text | Use `json`; set `TextType="ssml"` |
 | `InvalidS3BucketException` / `InvalidS3KeyException` | Bucket in another Region, a bad name, or an `s3://` URI passed | Pass the bucket name only, in the same Region |
+| Voice creation remains `pending` or becomes `failed` | Provisioning is still running, recordings are unsuitable, or the feature isn't enabled | Poll `GetVoice` with a timeout; surface `StatusReason`; don't blindly call `CreateVoice` again |
+| A cloned voice can't synthesize | Voice is not `active`, wrong account/Region, or wrong engine | Check `GetVoice`; use the creation Region and `Engine="generative"` |
 | `ThrottlingException` / `ServiceFailureException` | Request rate over quota, or a transient failure | Retry with exponential backoff and jitter |
 
 - Turn on SDK retries, e.g. boto3
@@ -283,14 +331,17 @@ Never publish model output to a shared lexicon unreviewed.
 - Log the request ID, voice, engine, Region, and character count. Never log
   credentials. Treat text as possibly sensitive.
 
-## 9. IAM, cost, data, and cleanup
+## 10. IAM, cost, data, and cleanup
 
 - **Least privilege:** grant only the actions the code calls, typically
   `polly:SynthesizeSpeech` and `polly:DescribeVoices`. Add
   `polly:StartSpeechSynthesisTask`, `polly:GetSpeechSynthesisTask`, and
   `polly:ListSpeechSynthesisTasks` (plus S3) for async; the lexicon actions for
-  lexicons; and `polly:StartSpeechSynthesisStream` for bidirectional
-  streaming. Lexicon actions can be scoped to lexicon ARNs.
+  lexicons; `polly:StartSpeechSynthesisStream` for bidirectional streaming; and
+  `polly:CreateVoice`, `polly:GetVoice`, and `polly:DeleteVoice` for cloned
+  voices. Cloning from S3 also needs `s3:GetObject`; a customer-managed key
+  needs the corresponding KMS permissions. Lexicon actions can be scoped to
+  lexicon ARNs.
 - **Cost:** every synthesis call is billed per character, including
   speech-mark calls and retries, and there's no dry-run. Check the
   `RequestCharacters` value returned in the response. Cache audio for repeated
@@ -301,16 +352,17 @@ Never publish model output to a shared lexicon unreviewed.
   before synthesizing user content, and don't keep generated audio longer than
   needed.
 - **Cleanup:** delete lexicons you created (`DeleteLexicon`), async output
-  objects in S3, and local audio files. Confirm with the owner before deleting
-  shared or production resources. Lexicon names and S3 prefixes may be in use
-  by other systems.
+  objects in S3, local audio files, and cloned voices that no longer have an
+  approved purpose. Confirm with the owner before deleting shared or production
+  resources. Lexicon names, S3 prefixes, and voice IDs may be in use by other
+  systems.
 
 **When acting as an agent on someone's AWS account:** run read-only checks
 first (`sts get-caller-identity`, `DescribeVoices`). Say when the next call is
 billed. Get explicit confirmation before creating, overwriting, or deleting
-lexicons or S3 objects in an account that may be production.
+lexicons, cloned voices, or S3 objects in an account that may be production.
 
-## 10. Working examples in this folder
+## 11. Working examples in this folder
 
 When this skill is used inside the `text-to-speech` folder, these runnable
 samples (paths relative to that folder) show each practice:
@@ -325,7 +377,10 @@ samples (paths relative to that folder) show each practice:
 | Lexicon lifecycle (put/get/list/apply/delete) | `features/05-lexicons/` |
 | Async synthesis to S3 | `features/06-async-synthesis/` |
 | Bidirectional streaming (experimental Python SDK) | `features/07-bidi-streaming/` |
+| Create, inspect, use, and delete a cloned voice | `features/08-voice-cloning/` |
 
 Each sample's `README.md` lists its setup, IAM, expected output, and cleanup.
-Features 01–06 share one Python 3.10+ virtual environment in `features/`.
-Feature 07 needs Python 3.12+ and its own environment.
+Features 01–06 and 08 share one Python 3.10+ virtual environment in `features/`.
+Feature 07 needs Python 3.12+ and its own environment. Read
+`features/08-voice-cloning/README.md` before cloning a voice; it contains the
+current recording, consent, Region, quota, encryption, and cleanup details.

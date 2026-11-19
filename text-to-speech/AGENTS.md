@@ -13,7 +13,7 @@ it before doing the task.
 
 | Skill | Use for |
 | --- | --- |
-| [`amazon-polly`](skills/amazon-polly/SKILL.md) | Any code that calls Polly: API choice, engines/voices, SSML, lexicons, speech marks, errors, cost |
+| [`amazon-polly`](skills/amazon-polly/SKILL.md) | Any code that calls Polly: API choice, engines/voices, voice cloning, SSML, lexicons, speech marks, errors, cost |
 | [`cascading-voice-agent`](skills/cascading-voice-agent/SKILL.md) | `use-cases/cascading-voice-agent/` — Transcribe → Bedrock → Polly voice agents (Pipecat, LangChain, LiveKit, AgentCore) |
 | [`content-to-audio`](skills/content-to-audio/SKILL.md) | `use-cases/content-to-audio/` — two-speaker podcast and grounded podcast studio |
 | [`live-speech-translator`](skills/live-speech-translator/SKILL.md) | `use-cases/live-speech-translator/` — Transcribe → Translate → Polly |

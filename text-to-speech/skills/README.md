@@ -10,7 +10,7 @@ agent that supports it.
 
 | Skill | Outcome | Scope |
 | --- | --- | --- |
-| [amazon-polly](amazon-polly/SKILL.md) | Choose the right Polly API, engine, and voice; write engine-safe SSML; manage lexicons; use speech marks; handle errors, limits, IAM, and cost | Any project that uses Polly (self-contained, portable) |
+| [amazon-polly](amazon-polly/SKILL.md) | Choose the right Polly API, engine, and voice; safely create and manage cloned voices; write engine-safe SSML; manage lexicons and speech marks; handle errors, limits, IAM, and cost | Any project that uses Polly (self-contained, portable) |
 | [cascading-voice-agent](cascading-voice-agent/SKILL.md) | Pick, run, deploy, and clean up a Transcribe → Bedrock → Polly voice agent (Pipecat, LangChain, LiveKit, AgentCore) | [`use-cases/cascading-voice-agent/`](../use-cases/cascading-voice-agent/) |
 | [content-to-audio](content-to-audio/SKILL.md) | Generate a two-speaker podcast; run or tear down the grounded podcast studio | [`use-cases/content-to-audio/`](../use-cases/content-to-audio/) |
 | [live-speech-translator](live-speech-translator/SKILL.md) | Run and tune local Transcribe → Translate → Polly translation | [`use-cases/live-speech-translator/`](../use-cases/live-speech-translator/) |
