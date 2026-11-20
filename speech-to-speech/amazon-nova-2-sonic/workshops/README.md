@@ -117,14 +117,14 @@ When using Chrome, if there’s no sound, please ensure the sound setting is set
 This workshop includes [repeatable patterns](https://catalog.workshops.aws/amazon-nova-sonic-s2s/en-US/200-labs/02-repeatable-pattern) samples show case popular integrations including [Bedrock Knowledge Bases (RAG)](https://catalog.workshops.aws/amazon-nova-sonic-s2s/en-US/200-labs/02-repeatable-pattern/01-kb-lab), [MCP](https://catalog.workshops.aws/amazon-nova-sonic-s2s/en-US/200-labs/02-repeatable-pattern/02-mcp-lab), [Bedrock Agents](https://catalog.workshops.aws/amazon-nova-sonic-s2s/en-US/200-labs/02-repeatable-pattern/04-bedrock-agents), and [Strands Agent](https://catalog.workshops.aws/amazon-nova-sonic-s2s/en-US/200-labs/02-repeatable-pattern/03-strands). Some features require additional deployment steps if you're running the workshop in your own environment. Instructions for each feature are provided below.
 
 
-### Bedrock Knowledge Base (RAG) intergation
+### Bedrock Knowledge Base (RAG) integration
 This workshop includes a sample integration with [Amazon Bedrock Knowledge Bases](https://aws.amazon.com/bedrock/knowledge-bases/) to demonstrate RAG (Retrieval-Augmented Generation) based question answering. 
 
 Refer to [this blog](https://aws.amazon.com/blogs/aws/knowledge-bases-now-delivers-fully-managed-rag-experience-in-amazon-bedrock/) if you're new to Amazon Bedrock Knowledge Bases and want to learn how to set one up using the AWS Console UI.
 
 - To enable this feature, set your Knowledge Base ID as an environment variable. Specifying the Knowledge Base region is optional and only required if your Knowledge Base is running in a different region than Sonic.
     ```bash
-    export KB_REGION='YOUR_KNOLEDGE_BASE_REGION_NAME'
+    export KB_REGION='YOUR_KNOWLEDGE_BASE_REGION_NAME'
     export KB_ID='YOUR_KNOWLEDGE_BASES_ID'
     ```
 
