@@ -9,8 +9,8 @@ import http.server
 import threading
 import os
 from http import HTTPStatus
-from mcp_client import McpLocationClient
-from strands_agent import StrandsAgent
+from integration.mcp_client import McpLocationClient
+from integration.strands_agent import StrandsAgent
 
 # Configure logging
 LOGLEVEL = os.environ.get("LOGLEVEL", "INFO").upper()
@@ -97,7 +97,13 @@ def start_health_check_server(health_host, health_port):
 
 
 async def websocket_handler(websocket):
+    aws_region = os.getenv("AWS_DEFAULT_REGION")
+    if not aws_region:
+        aws_region = "us-east-1"
+
     stream_manager = None
+    forward_task = None
+    
     try:
         async for message in websocket:
             try:
@@ -105,11 +111,23 @@ async def websocket_handler(websocket):
                 if 'body' in data:
                     data = json.loads(data["body"])
                 if 'event' in data:
-                    if stream_manager == None:
+                    event_type = list(data['event'].keys())[0]
+                    
+                    # Handle session start - create new stream manager
+                    if event_type == 'sessionStart':
+                        # Clean up existing session if any
+                        if stream_manager:
+                            await stream_manager.close()
+                        if forward_task and not forward_task.done():
+                            forward_task.cancel()
+                            try:
+                                await forward_task
+                            except asyncio.CancelledError:
+                                pass
 
                         """Handle WebSocket connections from the frontend."""
                         # Create a new stream manager for this connection
-                        stream_manager = S2sSessionManager(model_id='amazon.nova-sonic-v1:0', region='us-east-1', mcp_client=MCP_CLIENT, strands_agent=STRANDS_AGENT)
+                        stream_manager = S2sSessionManager(model_id='amazon.nova-sonic-v1:0', region=aws_region, mcp_client=MCP_CLIENT, strands_agent=STRANDS_AGENT)
                         
                         # Initialize the Bedrock stream
                         await stream_manager.initialize_stream()
@@ -117,13 +135,26 @@ async def websocket_handler(websocket):
                         # Start a task to forward responses from Bedrock to the WebSocket
                         forward_task = asyncio.create_task(forward_responses(websocket, stream_manager))
 
-                        event_type = list(data['event'].keys())[0]
-                        if event_type == "audioInput":
-                            debug_print(message[0:180])
-                        else:
-                            debug_print(message)
-                            
-                    if event_type:
+                    # Handle session end - clean up resources
+                    elif event_type == 'sessionEnd':
+                        if stream_manager:
+                            await stream_manager.close()
+                            stream_manager = None
+                        if forward_task and not forward_task.done():
+                            forward_task.cancel()
+                            try:
+                                await forward_task
+                            except asyncio.CancelledError:
+                                pass
+                            forward_task = None
+
+                    if event_type == "audioInput":
+                        debug_print(message[0:180])
+                    else:
+                        debug_print(message)
+                    
+                    # Only process events if we have an active stream manager
+                    if stream_manager and stream_manager.is_active:
                         # Store prompt name and content names if provided
                         if event_type == 'promptStart':
                             stream_manager.prompt_name = data['event']['promptStart']['promptName']
@@ -142,6 +173,9 @@ async def websocket_handler(websocket):
                         else:
                             # Send other events directly to Bedrock
                             await stream_manager.send_raw_event(data)
+                    elif event_type not in ['sessionStart', 'sessionEnd']:
+                        debug_print(f"Received event {event_type} but no active stream manager")
+                        
             except json.JSONDecodeError:
                 print("Invalid JSON received from WebSocket")
             except Exception as e:
@@ -152,11 +186,15 @@ async def websocket_handler(websocket):
     except websockets.exceptions.ConnectionClosed:
         print("WebSocket connection closed")
     finally:
-        # Clean up
-        await stream_manager.close()
-        forward_task.cancel()
-        if websocket:
-            websocket.close()
+        # Clean up resources
+        if stream_manager:
+            await stream_manager.close()
+        if forward_task and not forward_task.done():
+            forward_task.cancel()
+            try:
+                await forward_task
+            except asyncio.CancelledError:
+                pass
         if MCP_CLIENT:
             MCP_CLIENT.cleanup()
 
@@ -231,18 +269,21 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     host, port, health_port = None, None, None
-    if os.getenv("HOST"):
-        host = str(os.getenv("HOST"))
-    if os.getenv("WS_PORT"):
-        port = int(os.getenv("WS_PORT"))
+    host = str(os.getenv("HOST","localhost"))
+    port = int(os.getenv("WS_PORT","8081"))
     if os.getenv("HEALTH_PORT"):
         health_port = int(os.getenv("HEALTH_PORT"))
 
     enable_mcp = args.agent == "mcp"
     enable_strands = args.agent == "strands"
 
+    aws_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+    aws_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
+
     if not host or not port:
         print(f"HOST and PORT are required. Received HOST: {host}, PORT: {port}")
+    elif not aws_key_id or not aws_secret:
+        print(f"AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are required.")
     else:
         try:
             asyncio.run(main(host, port, health_port, enable_mcp, enable_strands))

@@ -1,0 +1,36 @@
+aws:
+  region: us-east-1
+
+audio:
+  sample_rate: 16000
+  channels: 1
+  dtype: int16
+  input_device: null
+  output_device: null
+  mic_block_frames: 2048
+  playback_chunk_bytes: 8192
+
+translator:
+  source_language: auto
+  identify_multiple_languages: true
+  target_language: en
+  mode: si
+  queue_size: 8
+  skip_translation_when_source_matches_target: true
+  auto_language_options:
+    - en-US
+    - es-US
+    - fr-FR
+    - de-DE
+    - it-IT
+    - pt-BR
+    - ja-JP
+    - ko-KR
+    - zh-CN
+  preferred_language: en-US
+
+polly:
+  voice_id: Tiffany
+  engine: generative
+  language_code: en-US
+  output_format: pcm

@@ -1,10 +1,10 @@
 import { fromIni } from "@aws-sdk/credential-providers";
+import { defaultProvider } from "@aws-sdk/credential-provider-node";
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { NovaSonicBidirectionalStreamClient } from "./client";
 import { randomUUID } from "crypto";
 
-const AWS_PROFILE_NAME = 'bedrock-test';
 const AUDIO_FILE_PATH = './input-audio-example/japan16k.raw';
 const OUTPUT_DIR = './output';
 const CHUNK_SIZE = 1024; // Size of audio chunks in bytes
@@ -37,14 +37,14 @@ async function main() {
             },
             clientConfig: {
                 region: "us-east-1",
-                credentials: fromIni({ profile: AWS_PROFILE_NAME })
+                credentials: process.env.AWS_PROFILE ? fromIni({ profile: process.env.AWS_PROFILE }) : defaultProvider()
             }
         });
 
         // Create a session for this streaming operation with unique ID
         const sessionId = `cli-session-${Date.now()}`;
         const session = s2sClient.createStreamSession(sessionId);
-        s2sClient.initiateSession(sessionId);
+        s2sClient.initiateBidirectionalStreaming(sessionId);
 
         // Track output data
         let transcription = '';
@@ -138,7 +138,7 @@ async function main() {
         console.log('Starting event sequence: Prompt Start -> System Prompt -> Audio Start');
 
         // Setting up the initial events in sequence
-        await session.setupPromptStart();
+        await session.setupSessionAndPromptStart();
         console.log("Prompt start event sent");
 
         await session.setupSystemPrompt();

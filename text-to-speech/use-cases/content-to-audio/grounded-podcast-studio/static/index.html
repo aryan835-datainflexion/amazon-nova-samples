@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Polly Podcast Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%235eb1ff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="dot"></span> Polly Podcast Studio</div>
+    <div class="tagline">Key Services: Amazon Polly, Amazon Bedrock, Amazon Bedrock AgentCore Web Search, Amazon DynamoDB</div>
+  </header>
+
+  <div class="layout">
+    <aside class="history">
+      <div class="history-head">
+        <h2>History</h2>
+        <button id="new-btn" class="ghost-btn" title="New generation">+ New</button>
+      </div>
+      <ul id="history-list" class="history-list"></ul>
+    </aside>
+
+    <main class="content">
+      <section class="controls">
+        <label class="field wide">
+          <span>Topic</span>
+          <input id="topic" type="text" placeholder="e.g. the future of quantum computing" />
+        </label>
+        <label class="field">
+          <span>Host name</span>
+          <input id="host_name" type="text" value="Alex" />
+        </label>
+        <label class="field">
+          <span>Co-host name</span>
+          <input id="cohost_name" type="text" value="Sam" />
+        </label>
+        <label class="field">
+          <span>Style</span>
+          <select id="style">
+            <option value="generative">Conversational</option>
+            <option value="newscaster">Newscaster</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Host voice</span>
+          <select id="host_voice"></select>
+        </label>
+        <label class="field">
+          <span>Co-host voice</span>
+          <select id="cohost_voice"></select>
+        </label>
+        <button id="run" class="run-btn">Generate episode</button>
+      </section>
+
+      <div id="view-banner" class="view-banner" hidden></div>
+
+      <section id="stages" class="stages"></section>
+
+      <section class="audio-panel" id="audio-panel" hidden>
+        <h2>Episode</h2>
+        <audio id="player" controls></audio>
+        <div class="meta" id="audio-meta"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

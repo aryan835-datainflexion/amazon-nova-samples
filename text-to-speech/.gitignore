@@ -1,0 +1,14 @@
+# Generated audio
+audio_output/
+*.mp3
+*.ogg
+*.pcm
+*.wav
+
+# Local credentials and generated deployment state
+.env
+setup_config.json
+gateway_config.json
+
+# Polly Avatar uses npm ci and requires its lockfiles.
+!use-cases/polly-avatar/**/package-lock.json

@@ -1,12 +1,28 @@
-boto3>=1.28.57
-botocore>=1.31.57
-opensearch-py
-retrying
-ipywidgets
-s3fs
-pickleshare
-retrying
-Pillow
+# AWS SDK and Core Dependencies
+boto3
+botocore
+
+# Data Processing
 pandas
+numpy
+retrying
+mysql-connector-python
+sqlalchemy
+
+# Image and Media Processing
+Pillow
+
+# Jupyter and Interactive Computing
+ipywidgets
+pickleshare
+
+# Bedrock AgentCore
+bedrock-agentcore
+bedrock-agentcore-starter-toolkit
+
+# Strands Framework for Agents
 strands-agents
 strands-agents-tools
+
+# Additional Utilities
+typing_extensions

@@ -5,7 +5,7 @@ class S2sEvent {
     temperature: 0.7
   };
 
-  static DEFAULT_SYSTEM_PROMPT = "You are a friend. The user and you will engage in a spoken dialog exchanging the transcripts of a natural real-time conversation. Keep your responses short, generally two or three sentences for chatty scenarios. You may start each of your sentences with emotions in square brackets such as [amused], [neutral] or any other stage direction such as [joyful]. Only use a single pair of square brackets for indicating a stage command.";
+  static DEFAULT_SYSTEM_PROMPT = "You are a friend. The user and you will engage in a spoken dialog exchanging the transcripts of a natural real-time conversation. Keep your responses short, generally two or three sentences for chatty scenarios.";
 
   static DEFAULT_AUDIO_INPUT_CONFIG = {
     mediaType: "audio/lpcm",
@@ -29,99 +29,39 @@ class S2sEvent {
   static DEFAULT_TOOL_CONFIG = {
     tools: [
       {
-      toolSpec: {
-        name: "getDateTool",
-        description: "get information about the date and time",
-        inputSchema: {
-          json: JSON.stringify({
-              "type": "object",
-              "properties": {},
-              "required": []
-              }
-          )
-        }
-      }
-    },
-    {
-      toolSpec: {
-        name: "getKbTool",
-        description: "get information about the Amazon policy",
-        inputSchema: {
-          json: JSON.stringify({
+        toolSpec: {
+          name: "getDateTool",
+          description: "get information about the date and time",
+          inputSchema: {
+            json: JSON.stringify({
               "type": "object",
               "properties": {},
               "required": []
             }
-          )
+            )
+          }
         }
-      }
-    },
-    {
-      toolSpec: {
-        name: "locationMcpTool",
-        description: "Access location services to find places, addresses, nearby locations.",
-        inputSchema: {
-          json: JSON.stringify({
-              "type": "object",
-              "properties": {
-                "tool": {
-                  "type": "string",
-                  "description": "The function name to search the location service. One of: search_places, get_place, search_nearby, reverse_geocode",
-                },
-                "query": {
-                  "type": "string",
-                  "description": "The search query to find relevant information"
-                }
-              },
-              "required": ["query"]
-            }
-          )
-        }
-      }
-    },
-    {
-      toolSpec: {
-        name: "externalAgent",
-        description: "Get weather information for specific locations.",
-        inputSchema: {
-          json: JSON.stringify({
+      },
+      {
+        toolSpec: {
+          name: "getKbTool",
+          description: "get information about Amazon Nova, Nova Sonic and Amazon foundation models",
+          inputSchema: {
+            json: JSON.stringify({
               "type": "object",
               "properties": {
                 "query": {
                   "type": "string",
-                  "description": "The search query to find relevant information"
+                  "description": "The question about Amazon Nova"
                 }
               },
-              "required": ["query"]
+              "required": []
             }
-          )
+            )
+          }
         }
-      }
-    },
-    {
-      toolSpec: {
-        name: "getBookingDetails",
-        description: "Manage bookings: create, get, update, delete, list, or find bookings by customer name. For update_booking, you can update by booking_id or by customer_name. If booking_id is not provided, all bookings for the given customer_name will be updated.",
-        inputSchema: {
-          json: JSON.stringify({
-            type: "object",
-            properties: {
-              operation: {
-                type: "string",
-                description: "The booking operation to perform. One of: get_booking, create_booking, update_booking, delete_booking, list_bookings, find_bookings_by_customer. For update_booking, you can specify either booking_id or customer_name. If booking_id is not provided, all bookings for the given customer_name will be updated."
-              },
-              booking_id: { type: "string", description: "Booking ID (for get, update, delete)" },
-              customer_name: { type: "string", description: "Customer name (for find_bookings_by_customer, get_booking, update_booking). For update_booking, if booking_id is not provided, all bookings for this customer will be updated." },
-              booking_details: { type: "object", description: "Details for creating a booking" },
-              update_data: { type: "object", description: "Fields to update in a booking. If using customer_name, all bookings for that customer may be updated." },
-              limit: { type: "integer", description: "Limit for list_bookings or find_bookings_by_customer" }
-            },
-            required: ["operation"]
-          })
-        }
-      }
-    }
-  ]
+      },
+    ]
   };
 
   static DEFAULT_CHAT_HISTORY = [
@@ -151,8 +91,17 @@ class S2sEvent {
     }
   ];
 
-  static sessionStart(inferenceConfig = S2sEvent.DEFAULT_INFER_CONFIG) {
-    return { event: { sessionStart: { inferenceConfiguration: inferenceConfig } } };
+  static sessionStart(inferenceConfig = S2sEvent.DEFAULT_INFER_CONFIG, turnSensitivity = "LOW") {
+    return {
+      event: {
+        sessionStart: {
+          inferenceConfiguration: inferenceConfig
+        },
+        // turnDetectionConfiguration: {
+        //   endpointingSensitivity: turnSensitivity
+        // }
+      }
+    };
   }
 
   static promptStart(promptName, audioOutputConfig = S2sEvent.DEFAULT_AUDIO_OUTPUT_CONFIG, toolConfig = S2sEvent.DEFAULT_TOOL_CONFIG) {
@@ -164,24 +113,24 @@ class S2sEvent {
             "mediaType": "text/plain"
           },
           "audioOutputConfiguration": audioOutputConfig,
-        
-        "toolUseOutputConfiguration": {
-          "mediaType": "application/json"
-        },
-        "toolConfiguration": toolConfig
-      }
+
+          "toolUseOutputConfiguration": {
+            "mediaType": "application/json"
+          },
+          "toolConfiguration": toolConfig
+        }
       }
     }
   }
 
-  static contentStartText(promptName, contentName, role="SYSTEM") {
+  static contentStartText(promptName, contentName, role = "SYSTEM", interactive = false) {
     return {
       "event": {
         "contentStart": {
           "promptName": promptName,
           "contentName": contentName,
           "type": "TEXT",
-          "interactive": true,
+          "interactive": interactive,
           "role": role,
           "textInputConfiguration": {
             "mediaType": "text/plain"

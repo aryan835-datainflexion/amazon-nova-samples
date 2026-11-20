@@ -4,8 +4,6 @@ import {
   InvokeModelWithBidirectionalStreamCommand,
   InvokeModelWithBidirectionalStreamInput,
 } from "@aws-sdk/client-bedrock-runtime";
-import axios from 'axios';
-import https from 'https';
 import {
   NodeHttp2Handler,
   NodeHttp2HandlerOptions,
@@ -51,7 +49,8 @@ export class StreamSession {
     return this; // For chaining
   }
 
-  public async setupPromptStart(): Promise<void> {
+  public async setupSessionAndPromptStart(): Promise<void> {
+    this.client.setupSessionStartEvent(this.sessionId);
     this.client.setupPromptStartEvent(this.sessionId);
   }
 
@@ -296,44 +295,35 @@ export class NovaSonicBidirectionalStreamClient {
     latitude: number,
     longitude: number
   ): Promise<Record<string, any>> {
-    const ipv4Agent = new https.Agent({ family: 4 });
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`;
 
     try {
-      const response = await axios.get(url, {
-        httpsAgent: ipv4Agent,
-        timeout: 5000,
+      const response = await fetch(url, {
         headers: {
           'User-Agent': 'MyApp/1.0',
           'Accept': 'application/json'
         }
       });
-      const weatherData = response.data;
+      const weatherData = await response.json();
       console.log("weatherData:", weatherData);
 
       return {
         weather_data: weatherData
       };
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(`Error fetching weather data: ${error.message}`, error);
-      } else {
-        console.error(`Unexpected error: ${error instanceof Error ? error.message : String(error)} `, error);
-      }
+      console.error(`Error fetching weather data: ${error instanceof Error ? error.message : String(error)} `, error);
       throw error;
     }
   }
 
   // Stream audio for a specific session
-  public async initiateSession(sessionId: string): Promise<void> {
+  public async initiateBidirectionalStreaming(sessionId: string): Promise<void> {
     const session = this.activeSessions.get(sessionId);
     if (!session) {
       throw new Error(`Stream session ${sessionId} not found`);
     }
 
     try {
-      // Set up initial events for this session
-      this.setupSessionStartEvent(sessionId);
 
       // Create the bidirectional stream with session-specific async iterator
       const asyncIterable = this.createSessionAsyncIterable(sessionId);
@@ -435,7 +425,7 @@ export class NovaSonicBidirectionalStreamClient {
                     if (error.message === "Stream closed" || !session.isActive) {
                       // This is an expected condition when closing the session
                       if (this.activeSessions.has(sessionId)) {
-                        console.log(`Session \${ sessionId } closed during wait`);
+                        console.log(`Session ${ sessionId } closed during wait`);
                       }
                       return { value: undefined, done: true };
                     }
@@ -606,7 +596,7 @@ export class NovaSonicBidirectionalStreamClient {
 
 
   // Set up initial events for a session
-  private setupSessionStartEvent(sessionId: string): void {
+  public setupSessionStartEvent(sessionId: string): void {
     console.log(`Setting up initial events for session ${sessionId}...`);
     const session = this.activeSessions.get(sessionId);
     if (!session) return;
@@ -620,6 +610,7 @@ export class NovaSonicBidirectionalStreamClient {
       }
     });
   }
+
   public setupPromptStartEvent(sessionId: string): void {
     console.log(`Setting up prompt start event for session ${sessionId}...`);
     const session = this.activeSessions.get(sessionId);
@@ -678,7 +669,7 @@ export class NovaSonicBidirectionalStreamClient {
           promptName: session.promptName,
           contentName: textPromptID,
           type: "TEXT",
-          interactive: true,
+          interactive: false,
           role: "SYSTEM",
           textInputConfiguration: textConfig,
         },

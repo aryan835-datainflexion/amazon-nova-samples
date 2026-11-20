@@ -6,8 +6,8 @@ import uuid
 import pyaudio
 from aws_sdk_bedrock_runtime.client import BedrockRuntimeClient, InvokeModelWithBidirectionalStreamOperationInput
 from aws_sdk_bedrock_runtime.models import InvokeModelWithBidirectionalStreamInputChunk, BidirectionalInputPayloadPart
-from aws_sdk_bedrock_runtime.config import Config, HTTPAuthSchemeResolver, SigV4AuthScheme
-from smithy_aws_core.credentials_resolvers.environment import EnvironmentCredentialsResolver
+from aws_sdk_bedrock_runtime.config import Config
+from smithy_aws_core.identity.environment import EnvironmentCredentialsResolver
 
 # Audio configuration
 INPUT_SAMPLE_RATE = 16000
@@ -37,8 +37,6 @@ class SimpleNovaSonic:
             endpoint_uri=f"https://bedrock-runtime.{self.region}.amazonaws.com",
             region=self.region,
             aws_credentials_identity_resolver=EnvironmentCredentialsResolver(),
-            http_auth_scheme_resolver=HTTPAuthSchemeResolver(),
-            http_auth_schemes={"aws.auth#sigv4": SigV4AuthScheme()}
         )
         self.client = BedrockRuntimeClient(config=config)
     
@@ -108,7 +106,7 @@ class SimpleNovaSonic:
                     "promptName": "{self.prompt_name}",
                     "contentName": "{self.content_name}",
                     "type": "TEXT",
-                    "interactive": true,
+                    "interactive": false,
                     "role": "SYSTEM",
                     "textInputConfiguration": {{
                         "mediaType": "text/plain"
@@ -347,10 +345,7 @@ async def main():
     
     # Wait for user to press Enter to stop
     await asyncio.get_event_loop().run_in_executor(None, input)
-    
-    # End session
-    nova_client.is_active = False
-    
+        
     # First cancel the tasks
     tasks = []
     if not playback_task.done():
@@ -362,11 +357,14 @@ async def main():
     if tasks:
         await asyncio.gather(*tasks, return_exceptions=True)
     
+    # End session
+    await nova_client.end_session()
+    nova_client.is_active = False
+
     # cancel the response task
     if nova_client.response and not nova_client.response.done():
         nova_client.response.cancel()
-    
-    await nova_client.end_session()
+
     print("Session ended")
 
 if __name__ == "__main__":

@@ -1,0 +1,23 @@
+# Dependencies are managed via requirements.txt (runtime) and
+# requirements-dev.txt (tests). Install the app with `pip install -r
+# requirements.txt`, then `pip install -e . --no-deps` to put the `voicebot`
+# package on the import path (this is what lets `python app.py` find it).
+#
+# Python must be 3.11 or 3.12: pipecat-ai requires >=3.11, while reachy-mini
+# targets 3.10-3.12. The overlap that satisfies both is 3.11-3.12.
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reachy-voice-assistant"
+version = "0.1.0"
+description = "All-AWS voice assistant (Amazon Transcribe + Bedrock + Polly) for the Reachy Mini robot, built on pipecat."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+# Dependencies live in requirements.txt / requirements-dev.txt, not here.
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]

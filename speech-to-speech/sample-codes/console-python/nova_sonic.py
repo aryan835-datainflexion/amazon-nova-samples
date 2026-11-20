@@ -14,8 +14,8 @@ from rx import operators as ops
 from rx.scheduler.eventloop import AsyncIOScheduler
 from aws_sdk_bedrock_runtime.client import BedrockRuntimeClient, InvokeModelWithBidirectionalStreamOperationInput
 from aws_sdk_bedrock_runtime.models import InvokeModelWithBidirectionalStreamInputChunk, BidirectionalInputPayloadPart
-from aws_sdk_bedrock_runtime.config import Config, HTTPAuthSchemeResolver, SigV4AuthScheme
-from smithy_aws_core.credentials_resolvers.environment import EnvironmentCredentialsResolver
+from aws_sdk_bedrock_runtime.config import Config
+from smithy_aws_core.identity.environment import EnvironmentCredentialsResolver
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -204,8 +204,6 @@ class BedrockStreamManager:
             endpoint_uri=f"https://bedrock-runtime.{self.region}.amazonaws.com",
             region=self.region,
             aws_credentials_identity_resolver=EnvironmentCredentialsResolver(),
-            http_auth_scheme_resolver=HTTPAuthSchemeResolver(),
-            http_auth_schemes={"aws.auth#sigv4": SigV4AuthScheme()}
         )
         self.bedrock_client = BedrockRuntimeClient(config=config)
     
@@ -435,7 +433,6 @@ class BedrockStreamManager:
         self.input_subject.on_completed()
         self.audio_subject.on_completed()
 
-        self.is_active = False
         if self.response_task and not self.response_task.done():
             self.response_task.cancel()
         

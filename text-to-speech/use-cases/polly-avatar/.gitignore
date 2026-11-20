@@ -1,0 +1,26 @@
+node_modules/
+dist/
+.env
+*.local
+.DS_Store
+.agents
+.ash
+
+# Office lock/temp files (e.g. ~$Diagram.pptx)
+~$*
+
+# Local-only Kiro steering/config (kept on disk, not committed)
+.kiro/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Persisted conversation sessions (Strands SessionManager local-file store)
+server/.sessions/
+
+# Optional local production overrides (deployed config comes from /config.json)
+client/.env.production
+
+# CDK synthesis output + context cache (regenerated per account on synth/deploy)
+infra/cdk.out/
+infra/cdk.context.json

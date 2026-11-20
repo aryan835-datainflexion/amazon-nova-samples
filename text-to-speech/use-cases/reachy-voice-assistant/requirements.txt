@@ -1,0 +1,24 @@
+# Runtime dependencies for the Reachy voice assistant (full app).
+#
+# Use a pip venv on Python 3.11 or 3.12 (NOT uv — uv's managed Pythons are not
+# macOS framework builds and break MuJoCo's `mjpython` simulator GUI):
+#
+#     python3.12 -m venv .venv
+#     source .venv/bin/activate
+#     pip install -r requirements.txt
+#     pip install -e . --no-deps        # puts `voicebot` on the import path
+#
+# To run only the unit tests (no AWS/robot/audio), use requirements-dev.txt instead.
+
+# Configuration loading
+PyYAML>=6
+
+# pipecat + AWS services (Amazon Transcribe STT, Amazon Bedrock LLM, Amazon Polly TTS)
+# plus the Silero VAD used for turn-taking.
+pipecat-ai[aws,silero]>=1.7,<2
+
+# Local microphone / speaker I/O for LocalAudioTransport
+pyaudio>=0.2.13
+
+# Reachy Mini SDK + MuJoCo simulator (the `--sim` daemon and the real-robot daemon)
+reachy-mini[mujoco]

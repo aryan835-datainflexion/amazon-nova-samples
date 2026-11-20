@@ -4,13 +4,12 @@ import base64
 import warnings
 import uuid
 from s2s_events import S2sEvent
-import bedrock_knowledge_bases as kb
 import time
 from aws_sdk_bedrock_runtime.client import BedrockRuntimeClient, InvokeModelWithBidirectionalStreamOperationInput
 from aws_sdk_bedrock_runtime.models import InvokeModelWithBidirectionalStreamInputChunk, BidirectionalInputPayloadPart
-from aws_sdk_bedrock_runtime.config import Config, HTTPAuthSchemeResolver, SigV4AuthScheme
-from smithy_aws_core.credentials_resolvers.environment import EnvironmentCredentialsResolver
-# from booking.booking_query_builder import build_booking_query
+from aws_sdk_bedrock_runtime.config import Config
+from smithy_aws_core.identity.environment import EnvironmentCredentialsResolver
+from integration import inline_agent, bedrock_knowledge_bases as kb, agent_core
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -26,7 +25,7 @@ def debug_print(message):
 class S2sSessionManager:
     """Manages bidirectional streaming with AWS Bedrock using asyncio"""
     
-    def __init__(self, model_id='amazon.nova-sonic-v1:0', region='us-east-1', mcp_client=None, strands_agent=None):
+    def __init__(self, region, model_id='amazon.nova-sonic-v1:0', mcp_client=None, strands_agent=None):
         """Initialize the stream manager."""
         self.model_id = model_id
         self.region = region
@@ -56,10 +55,33 @@ class S2sSessionManager:
             endpoint_uri=f"https://bedrock-runtime.{self.region}.amazonaws.com",
             region=self.region,
             aws_credentials_identity_resolver=EnvironmentCredentialsResolver(),
-            http_auth_scheme_resolver=HTTPAuthSchemeResolver(),
-            http_auth_schemes={"aws.auth#sigv4": SigV4AuthScheme()}
         )
         self.bedrock_client = BedrockRuntimeClient(config=config)
+
+    def reset_session_state(self):
+        """Reset session state for a new session."""
+        # Clear queues
+        while not self.audio_input_queue.empty():
+            try:
+                self.audio_input_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
+        
+        while not self.output_queue.empty():
+            try:
+                self.output_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
+        
+        # Reset tool use state
+        self.toolUseContent = ""
+        self.toolUseId = ""
+        self.toolName = ""
+        
+        # Reset session information
+        self.prompt_name = None
+        self.content_name = None
+        self.audio_content_name = None
 
     async def initialize_stream(self):
         """Initialize the bidirectional stream with Bedrock."""
@@ -192,6 +214,11 @@ class S2sSessionManager:
                             tool_start_event = S2sEvent.content_start_tool(prompt_name, toolContent, self.toolUseId)
                             await self.send_raw_event(tool_start_event)
                             
+                            # Also send tool start event to WebSocket client
+                            tool_start_event_copy = tool_start_event.copy()
+                            tool_start_event_copy["timestamp"] = int(time.time() * 1000)
+                            await self.output_queue.put(tool_start_event_copy)
+                            
                             # Send tool result event
                             if isinstance(toolResult, dict):
                                 content_json_string = json.dumps(toolResult)
@@ -201,10 +228,20 @@ class S2sSessionManager:
                             tool_result_event = S2sEvent.text_input_tool(prompt_name, toolContent, content_json_string)
                             print("Tool result", tool_result_event)
                             await self.send_raw_event(tool_result_event)
+                            
+                            # Also send tool result event to WebSocket client
+                            tool_result_event_copy = tool_result_event.copy()
+                            tool_result_event_copy["timestamp"] = int(time.time() * 1000)
+                            await self.output_queue.put(tool_result_event_copy)
 
                             # Send tool content end event
                             tool_content_end_event = S2sEvent.content_end(prompt_name, toolContent)
                             await self.send_raw_event(tool_content_end_event)
+                            
+                            # Also send tool content end event to WebSocket client
+                            tool_content_end_event_copy = tool_content_end_event.copy()
+                            tool_content_end_event_copy["timestamp"] = int(time.time() * 1000)
+                            await self.output_queue.put(tool_content_end_event_copy)
                     
                     # Put the response in the output queue for forwarding to the frontend
                     await self.output_queue.put(json_data)
@@ -241,23 +278,50 @@ class S2sSessionManager:
                 content = toolUseContent.get("content")  # Pass the JSON string directly to the agent
                 print(f"Extracted query: {content}")
             
-            # Handle built-in tools directly
-            if toolName == "getkbtool":
-                if not content:
-                    content = "amazon community policy"
-                result = kb.retrieve_kb(content)
-                
+            # AgentCore integration
+            if toolName.startswith("ac_"):
+                result = agent_core.invoke_agent_core(toolName, content)
+
+            # Simple toolUse to get system time in UTC
             if toolName == "getdatetool":
                 from datetime import datetime, timezone
                 result = datetime.now(timezone.utc).strftime('%A, %Y-%m-%d %H-%M-%S')
-                                
-            if toolName == "locationmcptool":
+
+            # Bedrock Knowledge Bases (RAG)
+            if toolName == "getkbtool":
+                result = kb.retrieve_kb(content)
+
+            # MCP integration - location search                        
+            if toolName == "getlocationtool":
                 if self.mcp_loc_client:
                     result = await self.mcp_loc_client.call_tool(content)
             
+            # Strands Agent integration - weather questions
             if toolName == "externalagent":
                 if self.strands_agent:
                     result = self.strands_agent.query(content)
+
+            # Bedrock Agents integration - Bookings
+            if toolName == "getbookingdetails":
+                try:
+                    # Pass the tool use content (JSON string) directly to the agent
+                    result = await inline_agent.invoke_agent(content)
+                    # Try to parse and format if needed
+                    try:
+                        booking_json = json.loads(result)
+                        if "bookings" in booking_json:
+                            result = await inline_agent.invoke_agent(
+                                f"Format this booking information for the user: {result}"
+                            )
+                    except Exception:
+                        pass  # Not JSON, just return as is
+                    
+                except json.JSONDecodeError as e:
+                    print(f"JSON decode error: {str(e)}")
+                    return {"result": f"Invalid JSON format for booking details: {str(e)}"}
+                except Exception as e:
+                    print(f"Error processing booking details: {str(e)}")
+                    return {"result": f"Error processing booking details: {str(e)}"}
 
             if not result:
                 result = "no result found"
@@ -274,8 +338,35 @@ class S2sSessionManager:
             
         self.is_active = False
         
+        # Clear audio queue to prevent processing old audio data
+        while not self.audio_input_queue.empty():
+            try:
+                self.audio_input_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
+        
+        # Clear output queue
+        while not self.output_queue.empty():
+            try:
+                self.output_queue.get_nowait()
+            except asyncio.QueueEmpty:
+                break
+        
+        # Reset tool use state
+        self.toolUseContent = ""
+        self.toolUseId = ""
+        self.toolName = ""
+        
+        # Reset session information
+        self.prompt_name = None
+        self.content_name = None
+        self.audio_content_name = None
+        
         if self.stream:
-            await self.stream.input_stream.close()
+            try:
+                await self.stream.input_stream.close()
+            except Exception as e:
+                debug_print(f"Error closing stream: {e}")
         
         if self.response_task and not self.response_task.done():
             self.response_task.cancel()
@@ -283,4 +374,8 @@ class S2sSessionManager:
                 await self.response_task
             except asyncio.CancelledError:
                 pass
+        
+        # Set stream to None to ensure it's properly cleaned up
+        self.stream = None
+        self.response_task = None
         
