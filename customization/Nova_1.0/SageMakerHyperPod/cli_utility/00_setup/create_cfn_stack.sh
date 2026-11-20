@@ -229,7 +229,7 @@ fi
 print_step "Step 3: Downloading CloudFormation template and creating stack"
 
 print_status "Downloading main-stack.yaml..."
-curl -O https://raw.githubusercontent.com/aws-samples/awsome-distributed-training/refs/heads/main/1.architectures/7.sagemaker-hyperpod-eks/cfn-templates/nested-stacks/main-stack.yaml
+curl -O https://raw.githubusercontent.com/awslabs/awsome-distributed-ai/main/architectures/sagemaker-hyperpod-eks/cfn-templates/nested-stacks/main-stack.yaml
 
 stack_name=$(prompt_input "Enter stack name" "hp-eks-test-stack")
 region=$(prompt_input "Enter AWS region" "us-east-1")
